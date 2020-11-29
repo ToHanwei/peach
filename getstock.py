@@ -21,14 +21,23 @@ class ArgParse(object):
     def parse(self):
         parser = argparse.ArgumentParser()
         parser.add_argument(
-                "-s", "--summaryfile",
+                "-f", "--summaryfile",
                 help="stock list file, tushare outpu file")
         parser.add_argument(
                 "-o", "--output",
                 help="output file path")
         parser.add_argument(
+                "-d", "--outdir",
+                help="output dir file path")
+        parser.add_argument(
                 "-c", "--code",
                 help="stock code")
+        parser.add_argument(
+                "-s", "--start",
+                help="history data start date")
+        parser.add_argument(
+                "-e", "--end",
+                help="history data end date")
         self.args = parser.parse_args()
 
 
@@ -39,8 +48,10 @@ class ObtainData(object):
         filename: stock list file that from tushare
         summary: stock summary data
     """
-    def __init__(self, filename):
+    def __init__(self, filename=None, start=None, end=None):
         self.filename = filename
+        self.start = start
+        self.end = end
         self.summary = None
         self.codelist = None
     
@@ -92,21 +103,21 @@ class ObtainData(object):
             codes.append(_code)
         self.codelist = codes
 
-    def download(self):
+    def download(self, code):
         """
         download data from baostock
         """
-        curdate = getdate()
+        curdate = self.getdate()
         lg = bs.login()
         rs = bs.query_history_k_data_plus(
-            code = "sh.600000",
+            code = code,
             fields = "date, code, open,\
                     high, low, close,\
                     preclose, volume,\
                     amount, adjustflag,\
                     turn, tradestatus,\
                     pctChg,isST",
-            start_date='2017-07-01',
+            start_date='1990-01-01',
             end_date=curdate,
             frequency="d",
             adjustflag="2")
